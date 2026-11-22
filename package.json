@@ -1,7 +1,7 @@
 {
   "name": "meshport",
   "version": "0.1.0",
-  "description": "One local app to fetch your 3D models through official APIs and clean them up for Blender.",
+  "description": "Local 3D model extractor and Blender optimization pipeline for Sketchfab, Meshy, and Tripo3D.",
   "type": "module",
   "main": "src/server.js",
   "bin": {

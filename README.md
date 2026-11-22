@@ -1,7 +1,7 @@
 # 📦 meshport
 
-> **All-in-one local 3D model ripper & Blender optimizer** for **Sketchfab**, **Meshy**, and **Tripo3D**.  
-> ⚡ **No API keys or accounts required.** Paste a link, press one button, and get clean, uncompressed **GLB**, **OBJ**, **STL**, **PLY**, or **FBX** ready for Blender, Unity, and Unreal Engine.
+> **Local 3D model extractor & Blender optimization pipeline** for **Sketchfab**, **Meshy**, and **Tripo3D**.  
+> Converts, repairs, and optimizes 3D models for Blender, Unity, and Unreal Engine (**GLB**, **OBJ**, **STL**, **PLY**, **FBX**).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js: >=18.17](https://img.shields.io/badge/Node.js-%3E%3D18.17-brightgreen.svg)](https://nodejs.org)
@@ -10,11 +10,36 @@
 
 ---
 
+## ⚖️ Legal Disclaimer & Terms of Use
+
+> [!IMPORTANT]
+> **Please read this disclaimer carefully before using meshport.**
+
+1. **Purpose & Scope:**  
+   `meshport` is an open-source research and interoperability tool designed for **educational purposes, local archiving, and format conversion**. It is intended to assist creators, researchers, and 3D artists in inspecting WebGL rendering pipelines and optimizing their own models for Blender.
+2. **Copyright & Creator Rights:**  
+   Users must only extract or process models that they **own, created, have explicit authorization to download, or which are licensed under permissive Creative Commons licenses** allowing local archiving. `meshport` automatically preserves author attribution and licensing metadata by generating a `CREDITS.txt` file alongside exported assets.
+3. **No Circumvention of Paywalls or Digital Rights Management (DRM):**  
+   `meshport` does **NOT** circumvent paywalls, digital rights management (DRM), access control gates, or subscription barriers. It only captures geometry and texture buffers already delivered openly to the client's local browser memory for WebGL canvas display.
+4. **No Hosting or Redistribution:**  
+   The authors and contributors of `meshport` do **NOT** host, store, cache, or distribute any copyright-protected 3D models, textures, or assets. All extraction, processing, and storage takes place strictly on the user's local machine (`localhost:3100`).
+5. **User Responsibility:**  
+   The user assumes full responsibility for complying with applicable copyright laws, local regulations, and the respective third-party platforms' Terms of Service. The creators of `meshport` accept no liability for any misuse of this tool.
+
+### 🏷️ Trademark Notice
+*Sketchfab is a trademark of Epic Games, Inc.*  
+*Meshy is a trademark of Meshy AI.*  
+*Tripo is a trademark of Tripo3D / VAST.*  
+*Blender is a registered trademark of the Blender Foundation.*  
+`meshport` is an independent, community-driven open-source project and is **not affiliated with, authorized, sponsored, or endorsed by** Epic Games, Meshy, Tripo3D, Blender Foundation, or any of their affiliates.
+
+---
+
 ## 🌟 Key Features
 
-- 🎨 **Sketchfab Ripper (PolySnatch Engine):** Hooks directly into Sketchfab's WebGL draw calls (`drawGeometry`, `drawArrays`). Automatically rotates the camera 360° to harvest all sub-meshes, materials, and high-res PBR textures (BaseColor, Normal, Roughness, Metallic).
-- 🤖 **MeshyRipper Engine:** Intercepts Web Workers, Blobs, and network streams to extract models directly from any Meshy model or workspace link.
-- ⚡ **TripoRipper Engine:** Dual-mode extraction (direct CDN stream capture + Vue/Three.js RAM traversal). **Automatically fixes the dreaded Blender `EXT_meshopt_compression` error!**
+- 🎨 **Sketchfab Viewer Extraction (PolySnatch Engine):** Hooks directly into Sketchfab's WebGL draw calls (`drawGeometry`, `drawArrays`). Automatically rotates the camera 360° to harvest all sub-meshes, materials, and high-res PBR textures (BaseColor, Normal, Roughness, Metallic) for local inspection and archiving.
+- 🤖 **Meshy Asset Extraction:** Intercepts Web Workers, Blobs, and network streams to extract models directly from any Meshy model or workspace link.
+- ⚡ **Tripo Asset Optimization:** Dual-mode extraction (direct CDN stream capture + Vue/Three.js RAM traversal). **Automatically fixes the dreaded Blender `EXT_meshopt_compression` error!**
 - 🛠️ **Blender Fixer & Converter ("My file" Tab):** Drag & drop any `.glb`, `.gltf`, `.zip`, or `.obj` to decompress, dequantize, merge duplicate vertices, remove degenerate faces, and make it 100% Blender-compatible.
 - 🌐 **Automatic Browser Detection:** Intelligently detects and runs through your existing **Opera GX**, **Google Chrome**, **Microsoft Edge**, **Brave**, or **Vivaldi** installation without configuration.
 - 🔒 **100% Local & Private:** Runs entirely on `http://localhost:3100`. No third-party servers, no logins, no personal data uploaded anywhere.
@@ -57,7 +82,7 @@ chmod +x start.sh
      ┌────────────────────────────────┼────────────────────────────────┐
      ▼                                ▼                                ▼
 [Sketchfab Link]                [Meshy Link]                   [Tripo Link]
-PolySnatch Engine              MeshyRipper Engine              TripoRipper Engine
+PolySnatch Engine              Meshy Extraction Engine         Tripo Engine
 (WebGL Draw Hook &             (Web Worker & Blob/Fetch        (CDN Stream Sniffer +
 360° Camera Spin)              Decryption)                     Vue Three.js RAM Extraction)
      │                                │                                │
@@ -81,7 +106,7 @@ PolySnatch Engine              MeshyRipper Engine              TripoRipper Engin
 1. Copy any Sketchfab model link (e.g. `https://sketchfab.com/3d-models/model-name-123456...`).
 2. Paste it into the **Sketchfab** tab (or just paste it anywhere on the page, meshport auto-detects the tab!).
 3. Choose your desired output formats (**GLB**, **OBJ**, etc.) and click **Get model**.
-4. The engine opens a background viewer, orbits the model to buffer geometry, gathers textures, and saves the cleaned model into the `output/` folder. A `CREDITS.txt` file is generated automatically.
+4. The engine opens a background viewer, orbits the model to buffer geometry, gathers textures, and saves the cleaned model into the `output/` folder. A `CREDITS.txt` file is generated automatically with license and attribution.
 
 ### 2. Meshy Models
 1. Copy any Meshy link (e.g. `https://www.meshy.ai/workspace/...` or model page).
@@ -131,7 +156,7 @@ Click on the **Options** accordion on the page to customize processing:
 
 > **Answer:**  
 > Tripo3D and other modern web viewers use `EXT_meshopt_compression` to minimize download size. Blender's built-in glTF importer does not support this extension out of the box.  
-> **Solution:** Simply drop the file into meshport's **"My file"** tab (or rip it through meshport directly). meshport uses `@gltf-transform` and the official `meshoptimizer` WebAssembly decoder to decompress it into standard, uncompressed glTF/GLB that Blender opens instantly.
+> **Solution:** Simply drop the file into meshport's **"My file"** tab (or process it through meshport directly). meshport uses `@gltf-transform` and the official `meshoptimizer` WebAssembly decoder to decompress it into standard, uncompressed glTF/GLB that Blender opens instantly.
 </details>
 
 <details>
@@ -158,13 +183,6 @@ Click on the **Options** accordion on the page to customize processing:
 > If you have **Blender** installed on your system (either in `Program Files` or in your `PATH`), meshport automatically detects it and enables the **FBX** checkbox. It runs Blender in headless mode in the background to produce standard Autodesk FBX files. If Blender is not found, the FBX option will be greyed out.
 </details>
 
-<details>
-<summary><strong>Q: Are API keys needed?</strong></summary>
-
-> **Answer:**  
-> **No!** All three link tabs (Sketchfab, Meshy, Tripo) use direct viewer capture and network sniffer engines. You do not need API tokens, paid plans, or developer accounts.
-</details>
-
 ---
 
 ## 🧪 Tests
@@ -180,7 +198,7 @@ Tests cover geometry cleanup, mesh welding, texture downsizing, format conversio
 
 ---
 
-## ⚖️ License & Credits
+## ⚖️ License & Contact
 
-- Licensed under the **[MIT License](LICENSE)**.
-- Only rip and download models that you have permission to use or own. Always respect creator rights and retain the `CREDITS.txt` license information.
+- Distributed under the **[MIT License](LICENSE)**.
+- If you are a copyright owner with inquiries or takedown requests regarding project documentation or interoperability guidelines, please open an issue on GitHub.
