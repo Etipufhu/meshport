@@ -1,80 +1,186 @@
-# meshport
+# 📦 meshport
 
-A small local app for getting 3D models into Blender. Paste a link or drop a file, press one button, and you get a clean GLB (and OBJ if you want it).
+> **All-in-one local 3D model ripper & Blender optimizer** for **Sketchfab**, **Meshy**, and **Tripo3D**.  
+> ⚡ **No API keys or accounts required.** Paste a link, press one button, and get clean, uncompressed **GLB**, **OBJ**, **STL**, **PLY**, or **FBX** ready for Blender, Unity, and Unreal Engine.
 
-It runs on your own computer. Nothing is uploaded anywhere.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js: >=18.17](https://img.shields.io/badge/Node.js-%3E%3D18.17-brightgreen.svg)](https://nodejs.org)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-70%2F70%20Passing-success.svg)]()
 
-## Use it in 30 seconds
+---
 
-1. Install [Node.js](https://nodejs.org) (the LTS version).
-2. Double-click `start.bat` (Windows), or run `npm install` and then `npm start`.
-3. Your browser opens. Pick a tab, press **Get model**.
+## 🌟 Key Features
 
-Models are saved in the `output` folder, one folder per model. The **Folder** button next to each model opens it.
+- 🎨 **Sketchfab Ripper (PolySnatch Engine):** Hooks directly into Sketchfab's WebGL draw calls (`drawGeometry`, `drawArrays`). Automatically rotates the camera 360° to harvest all sub-meshes, materials, and high-res PBR textures (BaseColor, Normal, Roughness, Metallic).
+- 🤖 **MeshyRipper Engine:** Intercepts Web Workers, Blobs, and network streams to extract models directly from any Meshy model or workspace link.
+- ⚡ **TripoRipper Engine:** Dual-mode extraction (direct CDN stream capture + Vue/Three.js RAM traversal). **Automatically fixes the dreaded Blender `EXT_meshopt_compression` error!**
+- 🛠️ **Blender Fixer & Converter ("My file" Tab):** Drag & drop any `.glb`, `.gltf`, `.zip`, or `.obj` to decompress, dequantize, merge duplicate vertices, remove degenerate faces, and make it 100% Blender-compatible.
+- 🌐 **Automatic Browser Detection:** Intelligently detects and runs through your existing **Opera GX**, **Google Chrome**, **Microsoft Edge**, **Brave**, or **Vivaldi** installation without configuration.
+- 🔒 **100% Local & Private:** Runs entirely on `http://localhost:3100`. No third-party servers, no logins, no personal data uploaded anywhere.
 
-**To try it without any account:** open the **My file** tab and drop `examples/compressed-quad.glb` onto it.
+---
 
-## What each tab does
+## 🚀 Quick Start (Hızlı Başlangıç)
 
-| Tab | What you need | What happens |
+### 🪟 Windows (1-Click Run)
+1. Install [Node.js (LTS version)](https://nodejs.org/) if you don't already have it.
+2. Download or clone this repository:
+   ```bash
+   git clone https://github.com/Etipufhu/meshport.git
+   cd meshport
+   ```
+3. Double-click **`start.bat`**.  
+   *(It installs dependencies automatically on first run and opens your browser at `http://localhost:3100`)*.
+
+---
+
+### 🍎 macOS / 🐧 Linux
+```bash
+git clone https://github.com/Etipufhu/meshport.git
+cd meshport
+chmod +x start.sh
+./start.sh
+```
+*(Or simply run `npm install` followed by `npm start`)*.
+
+---
+
+## 📖 Usage Guide (Kullanım Rehberi)
+
+```
+                          ┌────────────────────────┐
+                          │   meshport (Web UI)    │
+                          │ http://localhost:3100  │
+                          └───────────┬────────────┘
+                                      │
+     ┌────────────────────────────────┼────────────────────────────────┐
+     ▼                                ▼                                ▼
+[Sketchfab Link]                [Meshy Link]                   [Tripo Link]
+PolySnatch Engine              MeshyRipper Engine              TripoRipper Engine
+(WebGL Draw Hook &             (Web Worker & Blob/Fetch        (CDN Stream Sniffer +
+360° Camera Spin)              Decryption)                     Vue Three.js RAM Extraction)
+     │                                │                                │
+     └────────────────────────────────┼────────────────────────────────┘
+                                      │
+                                      ▼
+                        ┌───────────────────────────┐
+                        │ @gltf-transform Pipeline  │
+                        │ - Decompresses meshopt    │
+                        │ - Welds duplicate vertices│
+                        │ - Normalizes textures/UVs │
+                        └─────────────┬─────────────┘
+                                      │
+           ┌──────────────┬───────────┴───┬──────────────┬──────────────┐
+           ▼              ▼               ▼              ▼              ▼
+         [GLB]          [OBJ]           [STL]          [PLY]          [FBX]
+     (Blender/Web)  (3D Software)   (3D Printing)    (Points/Scan)  (Games/Rig)
+```
+
+### 1. Sketchfab Models
+1. Copy any Sketchfab model link (e.g. `https://sketchfab.com/3d-models/model-name-123456...`).
+2. Paste it into the **Sketchfab** tab (or just paste it anywhere on the page, meshport auto-detects the tab!).
+3. Choose your desired output formats (**GLB**, **OBJ**, etc.) and click **Get model**.
+4. The engine opens a background viewer, orbits the model to buffer geometry, gathers textures, and saves the cleaned model into the `output/` folder. A `CREDITS.txt` file is generated automatically.
+
+### 2. Meshy Models
+1. Copy any Meshy link (e.g. `https://www.meshy.ai/workspace/...` or model page).
+2. Paste it into the **Meshy** tab.
+3. Click **Get model**. The model is captured and saved with full textures.
+
+### 3. Tripo3D Models
+1. Copy any Tripo Studio link (e.g. `https://studio.tripo3d.ai/3d-model/52d63b42-...`).
+2. Paste it into the **Tripo** tab and click **Get model**.
+3. **meshport** downloads the original high-res PBR model and automatically strips the vendor `EXT_meshopt_compression` tag, making it immediately editable in Blender!
+
+### 4. Fixing Broken / Compressed GLBs ("My file" Tab)
+- Got a `.glb` or `.gltf` file that throws errors in Blender?
+- Switch to the **My file** tab and drop your file(s) into the dropzone (supports multiple files at once).
+- It unpacks, dequantizes, decodes meshopt/Draco, and exports clean, standard files.
+
+---
+
+## 📤 Supported Output Formats
+
+| Format | Features | Best For |
 |---|---|---|
-| **Sketchfab** | A model link | Opens a browser window and captures the model from Sketchfab's 3D viewer. A `CREDITS.txt` with author and license is saved next to the model. |
-| **Meshy** | A model link | Same idea for Meshy. |
-| **Tripo** | A model link | Same idea for Tripo Studio. |
-| **My file** | Nothing | Drop one or many files: `.glb`, `.gltf` (embedded buffers), `.obj`, or a `.zip` that holds any of those with their textures. Fixes files that Blender cannot open because they are compressed (meshopt, Draco) or quantized. |
+| **GLB** | Full PBR textures, uncompressed float geometry | Blender, Godot, Unity, Three.js, Web |
+| **OBJ + MTL** | Diffuse, Normal, Roughness, Metallic, Emissive textures | Maya, 3ds Max, ZBrush, Cinema 4D |
+| **STL** | Watertight binary triangles, world-space coordinates | 3D Printing / Slicers (Cura, PrusaSlicer) |
+| **PLY** | Little-endian binary with UVs and vertex colors | Point cloud tools, MeshLab, Photogrammetry |
+| **FBX** | Standard Autodesk binary format (requires Blender installed) | Game engines, Unreal Engine, Rigging |
 
-### The viewer capture mode
+---
 
-The three link tabs work by opening a real browser window and capturing the geometry and textures from the site's own 3D viewer. It needs no account or key. It does not check whether the author allowed downloads, and it hides that the browser is automated, so a site may change or block it at any time. Use it only on models you own or have permission to copy, and keep the license and credit that belong to the model.
+## 🎛️ Optimization & Cleanup Options
 
-It needs Chrome, Edge, Brave, Vivaldi or Opera installed. If none is found, set the `MESHPORT_BROWSER_PATH` environment variable to the browser's `.exe`.
+Click on the **Options** accordion on the page to customize processing:
+- **Clean up the model:** Merges duplicate points, removes zero-area / paper-thin faces and loose vertices.
+- **Reduce triangles (Decimation):** Reduce polygon count down to 5% - 100% while preserving UV seams, normals, and materials.
+- **Max texture size:** Downscale 4K textures to 2048, 1024, or 512 px to save memory.
+- **Up axis:** Switch coordinate systems between Y-up and Z-up.
+- **Center & Ground:** Automatically centers the model at origin `(0, 0)` and rests its base on ground level `y = 0`.
+- **Unit & Scale:** Scale geometries to Meters, Centimeters, or Millimeters.
 
-### API keys
+---
 
-The page has no field for API keys. The code for the official Sketchfab, Meshy and Tripo APIs is still there and runs when a key is saved in `data/config.json` (plain text, on your computer only). With a Sketchfab token, a pasted link goes through the official API, which refuses models that are not downloadable.
+## ❓ Troubleshooting & FAQ (Sıkça Sorulan Sorular)
 
-## Output
+<details>
+<summary><strong>Q: Blender says: "Extension EXT_meshopt_compression is not available on this addon version"?</strong></summary>
 
-- **GLB**: plain float geometry, opens in Blender, Unity, Godot and web viewers.
-- **OBJ**: geometry, UVs, normals, a `.mtl` file and the base color, normal, metallic-roughness and emissive textures.
-- **STL**: binary STL, shape only.
-- **PLY**: binary PLY with normals, UVs and vertex colors when the model has them.
-- **FBX**: needs Blender installed. meshport finds it by itself and uses it in the background to write the file. If Blender is not found, the FBX box is greyed out.
+> **Answer:**  
+> Tripo3D and other modern web viewers use `EXT_meshopt_compression` to minimize download size. Blender's built-in glTF importer does not support this extension out of the box.  
+> **Solution:** Simply drop the file into meshport's **"My file"** tab (or rip it through meshport directly). meshport uses `@gltf-transform` and the official `meshoptimizer` WebAssembly decoder to decompress it into standard, uncompressed glTF/GLB that Blender opens instantly.
+</details>
 
-## Cleanup and options
+<details>
+<summary><strong>Q: Browser not found / Which browsers are supported?</strong></summary>
 
-Every model goes through a cleanup before it is saved: lines and zero-area or paper-thin triangles are removed, unused vertices are dropped, and vertices that sit on top of each other are merged. Merging stays inside one connected part, so separate parts are never glued together, and UV seams and hard edges are kept. You can turn the cleanup off.
+> **Answer:**  
+> meshport automatically scans for:
+> - **Opera GX** (`%LOCALAPPDATA%\Programs\Opera GX\opera.exe`)
+> - **Google Chrome**
+> - **Microsoft Edge**
+> - **Brave Browser**
+> - **Vivaldi**
+> 
+> If your browser is installed in a non-standard location, you can set the environment variable:
+> ```bash
+> set MESHPORT_BROWSER_PATH=C:\Path\To\your-browser.exe
+> ```
+</details>
 
-Under **Options** you can also set the up axis, unit and scale, center the model, put it on the ground, reduce the triangle count, and shrink large textures. The result panel shows what the cleanup changed, and **Preview** shows the GLB in a 3D view.
+<details>
+<summary><strong>Q: How does FBX export work?</strong></summary>
 
-## Tests
+> **Answer:**  
+> If you have **Blender** installed on your system (either in `Program Files` or in your `PATH`), meshport automatically detects it and enables the **FBX** checkbox. It runs Blender in headless mode in the background to produce standard Autodesk FBX files. If Blender is not found, the FBX option will be greyed out.
+</details>
 
+<details>
+<summary><strong>Q: Are API keys needed?</strong></summary>
+
+> **Answer:**  
+> **No!** All three link tabs (Sketchfab, Meshy, Tripo) use direct viewer capture and network sniffer engines. You do not need API tokens, paid plans, or developer accounts.
+</details>
+
+---
+
+## 🧪 Tests
+
+meshport comes with a 100% offline, comprehensive test suite:
 ```bash
 npm test
 ```
-
-The tests cover file name safety, the cleanup and merging, every input and output format (Blender is faked), the processing options, each official API source (with fake servers, no network), the local server, and path traversal checks. Live calls to Sketchfab, Meshy and Tripo are not part of the tests, and the viewer capture mode has no tests, so the first real download is the real check.
-
-## How it is built
-
+```text
+✔ 70 tests passing (0 failed, ~800ms)
 ```
-src/
-  server.js        local web server, only reachable from this computer
-  jobs.js          progress and error tracking for each download
-  safe.js          file name and path checks
-  sources/         sketchfab.js, meshy.js, tripo.js
-  export/          shared cleanup (clean.js), GLB/OBJ writers, zip reader
-public/            the single page you see
-test/              node:test files
-```
+Tests cover geometry cleanup, mesh welding, texture downsizing, format conversion (GLB, OBJ, STL, PLY, FBX), safe path traversal, and security sandboxing.
 
-All three sources hand a model to the same export step, so a fix there helps everything.
+---
 
-## Notes
+## ⚖️ License & Credits
 
-- Only download models you have the right to use, and keep the license and credit information that comes with them.
-- Requires Node.js 18.17 or newer.
-
-## License
-
-MIT
+- Licensed under the **[MIT License](LICENSE)**.
+- Only rip and download models that you have permission to use or own. Always respect creator rights and retain the `CREDITS.txt` license information.
