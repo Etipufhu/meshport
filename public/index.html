@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>meshport</title>
+  <script>try{var t=localStorage.getItem('meshport.theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <link rel="stylesheet" href="/style.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 28 10v12L16 29 4 22V10z' fill='none' stroke='%232f6fed' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 28 10v12L16 29 4 22V10z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg> meshport</div>
+    <div class="topbtns"><button class="ghost" id="themeBtn" type="button" aria-label="Switch between light and dark theme">Theme</button></div>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="getTitle">
+      <h1 id="getTitle">Get a 3D model</h1>
+      <p class="sub">Pick where the model comes from, then press the button. Files are saved on this computer.</p>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="sketchfab" aria-selected="true">Sketchfab</button>
+        <button role="tab" data-tab="meshy" aria-selected="false">Meshy</button>
+        <button role="tab" data-tab="tripo" aria-selected="false">Tripo</button>
+        <button role="tab" data-tab="file" aria-selected="false">My file</button>
+      </div>
+
+      <div class="panel" data-panel="sketchfab">
+        <label for="sfInput">Sketchfab model link</label>
+        <input id="sfInput" type="text" placeholder="https://sketchfab.com/3d-models/..." autocomplete="off" spellcheck="false">
+        <p class="hint">⚡ <strong>PolySnatch Engine:</strong> Rips any model directly from the 3D viewer with full PBR textures. No API key needed!</p>
+      </div>
+
+      <div class="panel" data-panel="meshy" hidden>
+        <label for="meshyInput">Meshy model or workspace link</label>
+        <input id="meshyInput" type="text" placeholder="https://www.meshy.ai/workspace/..." autocomplete="off" spellcheck="false">
+        <p class="hint">⚡ <strong>MeshyRipper Engine:</strong> Intercepts and decrypts 3D models directly from the viewer. No API key needed!</p>
+      </div>
+
+      <div class="panel" data-panel="tripo" hidden>
+        <label for="tripoInput">Tripo3D model link</label>
+        <input id="tripoInput" type="text" placeholder="https://studio.tripo3d.ai/3d-model/..." autocomplete="off" spellcheck="false">
+        <p class="hint">⚡ <strong>TripoRipper Engine:</strong> Extracts 3D models & textures directly from Tripo Studio (Clean GLB without EXT_meshopt errors).</p>
+      </div>
+
+      <div class="panel" data-panel="file" hidden>
+        <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose model files">
+          <strong>Drop files here</strong>
+          <span>.glb, .gltf, .zip or .obj - several at once is fine. Or click to choose.</span>
+          <input id="fileInput" type="file" accept=".glb,.gltf,.zip,.obj" multiple hidden>
+        </div>
+        <ul id="queue" class="queue" aria-live="polite"></ul>
+        <div class="row qtools" id="qtools" hidden><span id="qcount" class="hint"></span><button class="ghost small" id="qclear" type="button">Clear finished</button></div>
+        <p class="hint">Fixes GLB files that do not open in Blender (compressed or quantized files). Files are processed one after another.</p>
+      </div>
+
+      <div class="row foot">
+        <fieldset class="formats">
+          <legend>Save as</legend>
+          <span id="fmtList" class="fmtlist"></span>
+        </fieldset>
+        <button class="primary" id="goBtn" type="button">Get model</button>
+      </div>
+
+      <details class="opts" id="opts">
+        <summary>Options</summary>
+        <div class="optgrid">
+          <label class="check wide"><input type="checkbox" id="optCleanup" checked> Clean up the model (merge duplicate points, remove stray lines and junk)</label>
+          <div><label for="optUp">Up axis</label>
+            <select id="optUp"><option value="">Keep as is</option><option value="y">Y is up</option><option value="z">Z is up</option></select></div>
+          <div><label for="optUnit">Unit</label>
+            <select id="optUnit"><option value="">Keep as is</option><option value="m">Meters</option><option value="cm">Centimeters</option><option value="mm">Millimeters</option></select></div>
+          <div><label for="optScale">Scale</label><input id="optScale" type="number" min="0.0001" step="any" value="1"></div>
+          <div><label for="optTex">Max texture size</label>
+            <select id="optTex"><option value="0">Off</option><option value="512">512 px</option><option value="1024">1024 px</option><option value="2048">2048 px</option><option value="4096">4096 px</option></select></div>
+          <label class="check"><input type="checkbox" id="optCenter"> Center at origin</label>
+          <label class="check"><input type="checkbox" id="optGround"> Put on the ground</label>
+          <div class="wide"><label for="optDec">Reduce triangles: <span id="optDecVal">100% kept (off)</span></label>
+            <input type="range" id="optDec" min="5" max="100" step="5" value="100"></div>
+        </div>
+        <button class="ghost small" id="optReset" type="button">Reset options</button>
+      </details>
+
+      <div id="jobBox" class="job" hidden aria-live="polite">
+        <div class="jobtop"><span id="jobLabel"></span><span id="jobStep"></span></div>
+        <div class="bar"><div id="jobBar"></div></div>
+        <div id="jobMsg"></div>
+        <div id="jobResult"></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="libTitle">
+      <div class="row"><h2 id="libTitle">Your models</h2><button class="ghost small" id="openAll" type="button">Open folder</button></div>
+      <div class="row libtools"><input id="search" type="search" placeholder="Search models" aria-label="Search models" autocomplete="off">
+        <select id="sort" aria-label="Sort models"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="name">Name A-Z</option><option value="size">Largest first</option></select></div>
+      <div id="models" class="list"></div>
+      <p id="empty" class="hint" hidden>Nothing here yet. Models you get will show up in this list.</p>
+    </section>
+  </main>
+
+  <dialog id="preview" class="previewdlg" aria-label="3D preview">
+    <div class="row pvtop"><strong id="pvTitle"></strong>
+      <span class="pvbtns"><label class="check"><input type="checkbox" id="pvWire"> Wireframe</label><button class="ghost small" id="pvClose" type="button">Close</button></span></div>
+    <div id="pvStage" class="pvstage"></div>
+    <p id="pvMsg" class="hint" role="status"></p>
+  </dialog>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
